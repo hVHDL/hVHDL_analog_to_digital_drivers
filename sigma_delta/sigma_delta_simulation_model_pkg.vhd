@@ -22,6 +22,9 @@ package sigma_delta_simulation_model_pkg is
         signal sdm_model_object : inout sdm_model_record;
         input_to_sdm : in real);
 ------------------------------------------------------------------------
+    function get_1bit_sdm_output ( sdm_model_object : sdm_model_record)
+        return std_logic;
+------------------------------------------------------------------------
     function "-" ( left : real; right : std_logic )
         return real;
 ------------------------------------------------------------------------

@@ -76,7 +76,7 @@ begin
 
             create_sdm_model(sdm_model, sini);
             request_sdm_model_calculation(sdm_model);
-            sdm_io <= sdm_model.output;
+            sdm_io <= get_1bit_sdm_output(sdm_model);
 
             sini <= 0.9 * sin((real(simulation_counter)/6000.0*math_pi) mod (2.0*math_pi));
 
