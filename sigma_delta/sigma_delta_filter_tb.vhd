@@ -15,8 +15,8 @@ end;
 
 architecture vunit_simulation of sigma_delta_filter_tb is
 
-    constant clock_period      : time    := 1 ns;
-    constant simtime_in_clocks : integer := 15000;
+    constant clock_period      : time    := 50 ns;
+    constant simtime_in_clocks : integer := 45000;
     
     signal simulator_clock     : std_logic := '0';
     signal simulation_counter  : natural   := 0;
@@ -28,13 +28,16 @@ architecture vunit_simulation of sigma_delta_filter_tb is
     signal counter : integer := 0;
     signal output : integer := 0;
 
-
     signal integrator : integer_array := (0,0,0);
     signal derivator : integer_array := (0,0,0);
 
-
     signal filter_output : real := 0.0;
     signal input_to_cic_filter : real := 0.0;
+
+    constant number_of_counts_in_sine_cycle : real := 20.0e6/3000.0;
+
+    signal filter_error : real := 0.0;
+    signal maximum_error : real := 0.0;
 
 begin
 
@@ -65,7 +68,18 @@ begin
                 calculate_cic_filter(integrator, derivator, counter, output, get_sdm_output(sigma_delta_model));
             end if;
 
-            input_to_cic_filter <= 0.009 * sin((real(simulation_counter)/5500.0*2.0*math_pi) mod (2.0*math_pi));
+            input_to_cic_filter <= 0.9 * sin((real(simulation_counter)/number_of_counts_in_sine_cycle*2.0*math_pi) mod (2.0*math_pi));
+
+            filter_error <= filter_output - input_to_cic_filter;
+            if abs(filter_error) > maximum_error then
+                maximum_error <= abs(filter_error);
+            end if;
+
+            if simulation_counter < 1000 then
+                maximum_error <= 0.0;
+            end if;
+            check(maximum_error < 0.08, "error should be less than 0.08");
+
 
         end if; -- rising_edge
     end process stimulus;	

@@ -40,11 +40,11 @@ package body sigma_delta_cic_filter_pkg is
 ------------------------------------------------------------------------
     procedure calculate_cic_filter
     (
-        signal integrator_array : inout integer_array;
-        signal derivator_array : inout integer_array;
+        signal integrator_array   : inout integer_array;
+        signal derivator_array    : inout integer_array;
         signal decimation_counter : inout integer;
-        signal output_signal : out integer;
-        input_bit : in integer
+        signal output_signal      : out integer;
+        input_bit                 : in integer
     ) is
         variable integrators : integer_array;
         variable derivators : integer_array;
@@ -73,6 +73,4 @@ package body sigma_delta_cic_filter_pkg is
         end if;
     end calculate_cic_filter;
 ------------------------------------------------------------------------
-
-
 end package body sigma_delta_cic_filter_pkg;
