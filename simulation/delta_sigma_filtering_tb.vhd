@@ -35,11 +35,17 @@ architecture vunit_simulation of delta_sigma_filtering_tb is
         input : in std_logic;
         gain : in real
     ) is
+        variable x : filter_array;
     begin
-        filter_object_array(0) <= filter_object_array(0) -(filter_object_array(0) - input)*gain;
-        filter_object_array(1) <= filter_object_array(1) +(filter_object_array(0) - filters(1))*gain;
-        filter_object_array(2) <= filter_object_array(2) +(filter_object_array(1) - filters(2))*gain;
-        filter_object_array(3) <= filter_object_array(3) +(filter_object_array(2) - filters(3))*gain;
+        x(0) := filter_object_array(0) -(filter_object_array(0) - input)*gain;
+        x(1) := filter_object_array(1) +(x(0) - filter_object_array(1))*gain;
+        x(2) := filter_object_array(2) +(x(1) - filter_object_array(2))*gain;
+        x(3) := filter_object_array(3) +(x(2) - filter_object_array(3))*gain;
+
+        filter_object_array(0) <= x(0);
+        filter_object_array(1) <= x(1);
+        filter_object_array(2) <= x(2);
+        filter_object_array(3) <= x(3);
         
     end calculate_first_order_filters;
 ------------------------------------------------------------------------
