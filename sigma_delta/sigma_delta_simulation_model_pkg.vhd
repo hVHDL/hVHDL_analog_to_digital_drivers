@@ -5,6 +5,9 @@ library ieee;
 
 package sigma_delta_simulation_model_pkg is
 
+    -- equation obtained from ti white paper How delta-sigma ADCs work, Part 1
+    -- https://www.ti.com/lit/an/slyt423a/slyt423a.pdf
+
     type sdm_model_record is record
         calculation_requested : boolean;
         calculation_is_ready : boolean;
