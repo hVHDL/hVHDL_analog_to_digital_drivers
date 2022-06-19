@@ -27,7 +27,6 @@ architecture vunit_simulation of delta_sigma_filtering_tb is
     signal sini : real := 0.0;
 
     type filter_array is array (integer range 0 to 3) of real;
-
     signal filters : filter_array := (0.0,0.0,0.0,0.0);
 
     constant filter_gain : real := 0.2;
@@ -54,12 +53,10 @@ begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
 
-
-
             create_sdm_model(sdm_model, sini);
             sdm_io <= sdm_model.output;
 
-            sini <= 0.9 * sin((real(simulation_counter)/2000.0*math_pi) mod (2.0*math_pi));
+            sini <= 0.9 * sin((real(simulation_counter)/6000.0*math_pi) mod (2.0*math_pi));
 
             filters(0) <= filters(0)-(filters(0) - sdm_io)*filter_gain;
             filters(1) <= filters(1) +(filters(0) - filters(1))*filter_gain;
