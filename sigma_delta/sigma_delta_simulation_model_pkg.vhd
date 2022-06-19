@@ -25,6 +25,12 @@ package sigma_delta_simulation_model_pkg is
     function "-" ( left : real; right : std_logic )
         return real;
 ------------------------------------------------------------------------
+    procedure request_sdm_model_calculation (
+        signal sdm_model_object : out sdm_model_record);
+------------------------------------------------------------------------
+    function sdm_model_is_ready ( sdm_model_object : sdm_model_record)
+        return boolean;
+------------------------------------------------------------------------
 
 end package sigma_delta_simulation_model_pkg;
 
@@ -80,17 +86,24 @@ package body sigma_delta_simulation_model_pkg is
 
     begin
 
-        x1 := m.integral1 + input_to_sdm - m.output;
-        x2 := m.integral2 + x1 - m.output;
-        if x2 > 0.0 then
-            y := '1';
-        else
-            y := '0';
-        end if;
 
-        m.integral1 <= x1;
-        m.integral2 <= x2;
-        m.output <= y;
+        m.calculation_requested <= false;
+        m.calculation_is_ready <= false;
+
+        if m.calculation_requested then
+            m.calculation_is_ready <= true;
+            x1 := m.integral1 + input_to_sdm - m.output;
+            x2 := m.integral2 + x1 - m.output;
+            if x2 > 0.0 then
+                y := '1';
+            else
+                y := '0';
+            end if;
+
+            m.integral1 <= x1;
+            m.integral2 <= x2;
+            m.output <= y;
+        end if;
         
     end create_sdm_model;
 ------------------------------------------------------------------------
@@ -109,8 +122,20 @@ package body sigma_delta_simulation_model_pkg is
         signal sdm_model_object : out sdm_model_record
     ) is
     begin
+        sdm_model_object.calculation_requested <= true;
         
     end request_sdm_model_calculation;
+------------------------------------------------------------------------
+    function sdm_model_is_ready
+    (
+        sdm_model_object : sdm_model_record
+    )
+    return boolean
+    is
+    begin
+        return sdm_model_object.calculation_is_ready;
+        
+    end sdm_model_is_ready;
 ------------------------------------------------------------------------
 
 end package body sigma_delta_simulation_model_pkg;

@@ -54,20 +54,26 @@ begin
             simulation_counter <= simulation_counter + 1;
 
             create_sdm_model(sdm_model, sini);
+            request_sdm_model_calculation(sdm_model);
             sdm_io <= sdm_model.output;
 
             sini <= 0.9 * sin((real(simulation_counter)/6000.0*math_pi) mod (2.0*math_pi));
 
-            filters(0) <= filters(0)-(filters(0) - sdm_io)*filter_gain;
-            filters(1) <= filters(1) +(filters(0) - filters(1))*filter_gain;
-            filters(2) <= filters(2) +(filters(1) - filters(2))*filter_gain;
-            filters(3) <= filters(3) +(filters(2) - filters(3))*filter_gain;
+            if sdm_model_is_ready(sdm_model) then
+                filters(0) <= filters(0)-(filters(0) - sdm_io)*filter_gain;
+                filters(1) <= filters(1) +(filters(0) - filters(1))*filter_gain;
+                filters(2) <= filters(2) +(filters(1) - filters(2))*filter_gain;
+                filters(3) <= filters(3) +(filters(2) - filters(3))*filter_gain;
+            end if;
 
             demodulation_error <= (sini - filters(3));
 
-            check( abs(demodulation_error) < 0.1, "maximum filter error should be less than 0.1");
-            if maximum_error < abs(demodulation_error) then
-                maximum_error <= abs(demodulation_error);
+            -- allow initial model start to have larger error
+            if simulation_counter > 100 then
+                check( abs(demodulation_error) < 0.1, "maximum filter error should be less than 0.1");
+                if maximum_error < abs(demodulation_error) then
+                    maximum_error <= abs(demodulation_error);
+                end if;
             end if;
 
 
