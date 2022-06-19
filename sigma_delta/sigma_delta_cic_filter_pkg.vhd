@@ -4,7 +4,7 @@ library ieee;
 
 package sigma_delta_cic_filter_pkg is
 
-    constant wordlength : integer := 23;
+    constant wordlength : integer := 16;
     type integer_array is array (integer range 0 to 2) of integer range -2**(wordlength-1) to 2**(wordlength-1)-1;
 
     procedure calculate_cic_filter (
