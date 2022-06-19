@@ -15,7 +15,7 @@ end;
 architecture vunit_simulation of delta_sigma_filtering_tb is
 
     constant clock_period      : time    := 1 ns;
-    constant simtime_in_clocks : integer := 5000;
+    constant simtime_in_clocks : integer := 50000;
     
     signal simulator_clock     : std_logic := '0';
     signal simulation_counter  : natural   := 0;
@@ -26,7 +26,13 @@ architecture vunit_simulation of delta_sigma_filtering_tb is
     signal sdm_io : std_logic := '0';
     signal sini : real := 0.0;
 
-    signal filter : real := 0.0;
+    type filter_array is array (integer range 0 to 3) of real;
+
+    signal filters : filter_array := (0.0,0.0,0.0,0.0);
+
+    constant filter_gain : real := 0.2;
+    signal maximum_error : real := 0.0;
+    signal demodulation_error : real := 0.0;
 
 begin
 
@@ -50,10 +56,22 @@ begin
 
 
 
-            create_sdm_model(sdm_model, 0.9 * sin((real(simulation_counter)/400.0*math_pi) mod (2.0*math_pi)));
+            create_sdm_model(sdm_model, sini);
             sdm_io <= sdm_model.output;
 
-            sini <= sin((real(simulation_counter)/400.0*math_pi) mod (2.0*math_pi));
+            sini <= 0.9 * sin((real(simulation_counter)/2000.0*math_pi) mod (2.0*math_pi));
+
+            filters(0) <= filters(0)-(filters(0) - sdm_io)*filter_gain;
+            filters(1) <= filters(1) +(filters(0) - filters(1))*filter_gain;
+            filters(2) <= filters(2) +(filters(1) - filters(2))*filter_gain;
+            filters(3) <= filters(3) +(filters(2) - filters(3))*filter_gain;
+
+            demodulation_error <= (sini - filters(3));
+
+            check( abs(demodulation_error) < 0.1, "maximum filter error should be less than 0.1");
+            if maximum_error < abs(demodulation_error) then
+                maximum_error <= abs(demodulation_error);
+            end if;
 
 
         end if; -- rising_edge
