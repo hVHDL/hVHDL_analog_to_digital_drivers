@@ -28,6 +28,21 @@ architecture vunit_simulation of delta_sigma_filtering_tb is
 
     type filter_array is array (integer range 0 to 3) of real;
     signal filters : filter_array := (0.0,0.0,0.0,0.0);
+------------------------------------------------------------------------
+    procedure calculate_first_order_filters
+    (
+        signal filter_object_array : inout filter_array;
+        input : in std_logic;
+        gain : in real
+    ) is
+    begin
+        filter_object_array(0) <= filter_object_array(0) -(filter_object_array(0) - input)*gain;
+        filter_object_array(1) <= filter_object_array(1) +(filter_object_array(0) - filters(1))*gain;
+        filter_object_array(2) <= filter_object_array(2) +(filter_object_array(1) - filters(2))*gain;
+        filter_object_array(3) <= filter_object_array(3) +(filter_object_array(2) - filters(3))*gain;
+        
+    end calculate_first_order_filters;
+------------------------------------------------------------------------
 
     constant filter_gain : real := 0.2;
     signal maximum_error : real := 0.0;
@@ -60,10 +75,7 @@ begin
             sini <= 0.9 * sin((real(simulation_counter)/6000.0*math_pi) mod (2.0*math_pi));
 
             if sdm_model_is_ready(sdm_model) then
-                filters(0) <= filters(0)-(filters(0) - sdm_io)*filter_gain;
-                filters(1) <= filters(1) +(filters(0) - filters(1))*filter_gain;
-                filters(2) <= filters(2) +(filters(1) - filters(2))*filter_gain;
-                filters(3) <= filters(3) +(filters(2) - filters(3))*filter_gain;
+                calculate_first_order_filters(filters, sdm_io, filter_gain);
             end if;
 
             demodulation_error <= (sini - filters(3));
