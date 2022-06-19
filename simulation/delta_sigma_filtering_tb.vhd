@@ -94,7 +94,6 @@ begin
                 end if;
             end if;
 
-
         end if; -- rising_edge
     end process stimulus;	
 ------------------------------------------------------------------------

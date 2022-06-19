@@ -34,6 +34,9 @@ package sigma_delta_simulation_model_pkg is
     function sdm_model_is_ready ( sdm_model_object : sdm_model_record)
         return boolean;
 ------------------------------------------------------------------------
+    function get_sdm_output ( sdm_model_object : sdm_model_record)
+        return integer;
+------------------------------------------------------------------------
 
 end package sigma_delta_simulation_model_pkg;
 
@@ -119,6 +122,23 @@ package body sigma_delta_simulation_model_pkg is
     begin
         return sdm_model_object.output;
     end get_1bit_sdm_output;
+------------------------------------------------------------------------
+    function get_sdm_output
+    (
+        sdm_model_object : sdm_model_record
+    )
+    return integer
+    is
+        variable returned_value : integer;
+    begin
+        if get_1bit_sdm_output(sdm_model_object) = '1' then
+            returned_value := 1;
+        else
+            returned_value := -1;
+        end if;
+        
+        return returned_value;
+    end get_sdm_output;
 ------------------------------------------------------------------------
     procedure request_sdm_model_calculation
     (
