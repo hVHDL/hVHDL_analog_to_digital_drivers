@@ -7,6 +7,7 @@ package sigma_delta_cic_filter_pkg is
     constant wordlength : integer := 16;
     subtype sdm_integer is integer range -2**15 to 2**15-1;
     type integer_array is array (integer range 0 to 2) of integer range -2**(wordlength-1) to 2**(wordlength-1)-1;
+    constant init_integer_array : integer_array := (0,0,0);
 
     type cic_filter_record is record
         integrator_array   : integer_array;
@@ -14,6 +15,15 @@ package sigma_delta_cic_filter_pkg is
         decimation_counter : sdm_integer;
         output_signal      : sdm_integer;
     end record;
+
+    constant init_cic_filter : cic_filter_record := (init_integer_array, init_integer_array, 0, 0);
+
+    procedure calculate_cic_filter (
+        signal cic_filter_object : inout cic_filter_record;
+        input_bit : in std_logic);
+
+    function get_cic_filter_output ( cic_filter_object : cic_filter_record)
+        return integer;
 
     procedure calculate_cic_filter (
         signal integrator_array   : inout integer_array;
@@ -79,5 +89,37 @@ package body sigma_delta_cic_filter_pkg is
             output_signal      <= (derivators(0) - derivator_array(0) - derivator_array(1) - derivator_array(2));
         end if;
     end calculate_cic_filter;
+------------------------------------------------------------------------
+    procedure calculate_cic_filter
+    (
+        signal cic_filter_object : inout cic_filter_record;
+        input_bit : in std_logic
+    ) is
+        alias m is cic_filter_object;
+        variable input_integer : integer range 0 to 1;
+    begin
+        if input_bit = '0' then
+            input_integer := 0;
+        else
+            input_integer := 1;
+        end if;
+        calculate_cic_filter(
+            m.integrator_array   ,
+            m.derivator_array    ,
+            m.decimation_counter ,
+            m.output_signal      ,
+            input_integer);
+        
+    end calculate_cic_filter;
+------------------------------------------------------------------------
+    function get_cic_filter_output
+    (
+        cic_filter_object : cic_filter_record
+    )
+    return integer
+    is
+    begin
+        return cic_filter_object.output_signal;
+    end get_cic_filter_output;
 ------------------------------------------------------------------------
 end package body sigma_delta_cic_filter_pkg;
