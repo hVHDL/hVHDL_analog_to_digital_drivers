@@ -5,14 +5,22 @@ library ieee;
 package sigma_delta_cic_filter_pkg is
 
     constant wordlength : integer := 16;
+    subtype sdm_integer is integer range -2**15 to 2**15-1;
     type integer_array is array (integer range 0 to 2) of integer range -2**(wordlength-1) to 2**(wordlength-1)-1;
 
+    type cic_filter_record is record
+        integrator_array   : integer_array;
+        derivator_array    : integer_array;
+        decimation_counter : sdm_integer;
+        output_signal      : sdm_integer;
+    end record;
+
     procedure calculate_cic_filter (
-        signal integrator_array : inout integer_array;
-        signal derivator_array : inout integer_array;
-        signal decimation_counter : inout integer;
-        signal output_signal : out integer;
-        input_bit : in integer);
+        signal integrator_array   : inout integer_array;
+        signal derivator_array    : inout integer_array;
+        signal decimation_counter : inout integer range 0 to 255;
+        signal output_signal      : out sdm_integer;
+        input_bit                 : in integer);
 
 end package sigma_delta_cic_filter_pkg;
 
@@ -38,12 +46,11 @@ package body sigma_delta_cic_filter_pkg is
         return to_integer(to_signed(left,wordlength) - to_signed(right,wordlength));
     end "-";
 ------------------------------------------------------------------------
-    procedure calculate_cic_filter
-    (
+    procedure calculate_cic_filter (
         signal integrator_array   : inout integer_array;
         signal derivator_array    : inout integer_array;
-        signal decimation_counter : inout integer;
-        signal output_signal      : out integer;
+        signal decimation_counter : inout integer range 0 to 255;
+        signal output_signal      : out sdm_integer;
         input_bit                 : in integer
     ) is
         variable integrators : integer_array;
@@ -69,7 +76,7 @@ package body sigma_delta_cic_filter_pkg is
             derivator_array(0) <= derivators(0);
             derivator_array(1) <= derivators(1);
             derivator_array(2) <= derivators(2);
-            output_signal <= (derivators(0) - derivator_array(0) - derivator_array(1) - derivator_array(2));
+            output_signal      <= (derivators(0) - derivator_array(0) - derivator_array(1) - derivator_array(2));
         end if;
     end calculate_cic_filter;
 ------------------------------------------------------------------------
