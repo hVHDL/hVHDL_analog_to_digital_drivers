@@ -10,5 +10,6 @@ VU = VUnit.from_argv()
 adc = VU.add_library("analog_to_digital")
 adc.add_source_files(ROOT / "sigma_delta" / "*.vhd")
 adc.add_source_files(ROOT / "simulation" / "*.vhd")
+adc.add_source_files(ROOT / "spi_adc" / "*.vhd")
 
 VU.main()
