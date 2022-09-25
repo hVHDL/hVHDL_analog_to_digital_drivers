@@ -7,15 +7,16 @@ library vunit_lib;
 context vunit_lib.vunit_context;
 
     use work.ad_mux_pkg.all;
+    use work.ads7056_pkg.all;
 
-entity ad_mux_tb is
+entity muxed_adc_tb is
   generic (runner_cfg : string);
 end;
 
-architecture vunit_simulation of ad_mux_tb is
+architecture vunit_simulation of muxed_adc_tb is
 
     constant clock_period      : time    := 1 ns;
-    constant simtime_in_clocks : integer := 50;
+    constant simtime_in_clocks : integer := 5000;
     
     signal simulator_clock     : std_logic := '0';
     signal simulation_counter  : natural   := 0;
@@ -23,7 +24,14 @@ architecture vunit_simulation of ad_mux_tb is
     -- simulation specific signals ----
     signal ad_mux : ad_mux_record := init_ad_mux;
 
+
+    signal ads7056 : ads7056_record := init_ads7056(2);
     signal ad_mux_io : std_logic_vector(2 downto 0);
+    signal clock_counter : integer := 0;
+    signal triggered_adc_channel : integer := 0;
+
+    type measurements_array is array (integer range 0 to 7) of integer;
+    signal measurements : measurements_array := (others => 0);
 
 begin
 
@@ -40,23 +48,27 @@ begin
 ------------------------------------------------------------------------
 
     stimulus : process(simulator_clock)
-        variable trigger : boolean := false;
         variable channel : integer := 0;
 
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
-            create_ad_mux(ad_mux, trigger);
+            create_ads7056(ads7056, '1');
+            create_ad_mux(ad_mux, ads7056_is_ready(ads7056));
             ad_mux_io <= get_ad_mux_io(ad_mux);
 
-            trigger := false;
-            if simulation_counter mod 5 = 0 then
-                trigger := true;
-            end if;
-
-            if simulation_counter mod 5 = 1 then
+            if ads7056_is_ready(ads7056) then
                 channel := (channel + 1) mod 8;
                 setup_next_channel(ad_mux, channel);
+            end if;
+
+            if simulation_counter mod 100 = 0 then
+                request_ad_conversion(ads7056);
+                triggered_adc_channel <= get_ad_mux_io(ad_mux);
+            end if;
+
+            if ads7056_is_ready(ads7056) then
+                measurements(triggered_adc_channel) <= get_ad_measurement(ads7056);
             end if;
 
         end if; -- rising_edge

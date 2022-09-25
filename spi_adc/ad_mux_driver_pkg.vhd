@@ -2,12 +2,11 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
-package ad_mux_driver_pkg is
+package ad_mux_pkg is
 
     type ad_mux_record is record
         channel      : integer range 0 to 7;
         next_channel : integer range 0 to 7;
-        is_triggered : boolean;
     end record;
 
 ------------------------------------------------------------------------
@@ -18,7 +17,8 @@ package ad_mux_driver_pkg is
 
 ------------------------------------------------------------------------
     procedure create_ad_mux (
-        signal ad_mux_object : inout ad_mux_record);
+        signal ad_mux_object : inout ad_mux_record;
+        is_triggered : in boolean);
 ------------------------------------------------------------------------
     procedure setup_next_channel (
         signal ad_mux_object : out ad_mux_record;
@@ -26,14 +26,17 @@ package ad_mux_driver_pkg is
 ------------------------------------------------------------------------
     function get_ad_mux_io ( ad_mux_object : ad_mux_record)
         return std_logic_vector;
+
+    function get_ad_mux_io ( ad_mux_object : ad_mux_record)
+        return integer;
 ------------------------------------------------------------------------
 
-end package ad_mux_driver_pkg;
+end package ad_mux_pkg;
 
-package body ad_mux_driver_pkg is
+package body ad_mux_pkg is
 
 ------------------------------------------------------------------------
-    constant initial_value_for_ad_mux : ad_mux_record  := (0,0,false);
+    constant initial_value_for_ad_mux : ad_mux_record  := (0,0);
 
 --------------------
     function init_ad_mux return ad_mux_record
@@ -52,20 +55,20 @@ package body ad_mux_driver_pkg is
         variable return_value : ad_mux_record;
     begin
 
-        return_value := (initial_channel, 0, false);
+        return_value := (initial_channel, 0);
         return return_value;
     end init_ad_mux;
 
 ------------------------------------------------------------------------
     procedure create_ad_mux
     (
-        signal ad_mux_object : inout ad_mux_record
+        signal ad_mux_object : inout ad_mux_record;
+        is_triggered         : in boolean
     ) is
         alias m is ad_mux_object;
     begin
 
-        m.is_triggered <= false;
-        if m.is_triggered then
+        if is_triggered then
             m.channel <= m.next_channel;
         end if;
         
@@ -90,5 +93,16 @@ package body ad_mux_driver_pkg is
         return std_logic_vector(to_unsigned(ad_mux_object.channel, 3));
         
     end get_ad_mux_io;
+
+    function get_ad_mux_io
+    (
+        ad_mux_object : ad_mux_record
+    )
+    return integer 
+    is
+    begin
+        return ad_mux_object.channel;
+        
+    end get_ad_mux_io;
 ------------------------------------------------------------------------
-end package body ad_mux_driver_pkg;
+end package body ad_mux_pkg;
