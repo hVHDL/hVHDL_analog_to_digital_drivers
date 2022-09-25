@@ -22,9 +22,12 @@ architecture vunit_simulation of muxed_adc_tb is
     -----------------------------------
     -- simulation specific signals ----
     signal muxed_adc : muxed_adc_record := init_muxed_adc(5);
-    signal ad_mux_io : integer := 0;
+    signal ad_mux_io : std_logic_vector(2 downto 0) := (others => '0');
 
     signal measurements          : measurements_array := (others => 0);
+
+    type intarray is array (integer range 0 to 7) of integer;
+    constant channel_sel : intarray := (5,3,7,4,1,0,6,2);
 begin
 
 ------------------------------------------------------------------------
@@ -50,7 +53,7 @@ begin
 
             if ad_measurement_is_ready(muxed_adc) then
                 channel := (channel + 1) mod 8;
-                setup_next_channel(muxed_adc, channel);
+                setup_next_channel(muxed_adc, channel_sel(channel));
             end if;
 
             if simulation_counter mod 100 = 0 then
@@ -60,6 +63,7 @@ begin
             if ad_measurement_is_ready(muxed_adc) then
                 measurements(get_triggered_adc_channel(muxed_adc)) <= get_ad_measurement(muxed_adc);
             end if;
+
 
         end if; -- rising_edge
     end process stimulus;	

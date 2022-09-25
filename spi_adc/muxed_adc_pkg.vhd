@@ -26,6 +26,9 @@ package muxed_adc_pkg is
 ------------------------------------------------------------------------
     function get_ad_mux_io ( muxed_adc_object : muxed_adc_record)
         return integer;
+------------------------------
+    function get_ad_mux_io ( muxed_adc_object : muxed_adc_record)
+        return std_logic_vector ;
 ------------------------------------------------------------------------
     function ad_measurement_is_ready ( muxed_adc_object : muxed_adc_record)
         return boolean;
@@ -58,6 +61,7 @@ package body muxed_adc_pkg is
         variable return_value : muxed_adc_record;
     begin
         return_value := (init_ads7056(clock_divider), init_ad_mux, 0, (others => 0));
+        return return_value;
         
     end init_muxed_adc;
 ------------------------------------------------------------------------
@@ -112,6 +116,18 @@ package body muxed_adc_pkg is
     begin
         return get_ad_mux_io(muxed_adc_object.ad_mux);
     end get_ad_mux_io;
+
+    function get_ad_mux_io
+    (
+        muxed_adc_object : muxed_adc_record
+    )
+    return std_logic_vector 
+    is
+    begin
+        return get_ad_mux_io(muxed_adc_object.ad_mux);
+    end get_ad_mux_io;
+
+
 ------------------------------------------------------------------------
     function ad_measurement_is_ready
     (
