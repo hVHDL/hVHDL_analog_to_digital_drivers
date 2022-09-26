@@ -26,7 +26,7 @@ package muxed_adc_pkg is
 ------------------------------------------------------------------------
     function get_ad_mux_io ( muxed_adc_object : muxed_adc_record)
         return integer;
-------------------------------
+--
     function get_ad_mux_io ( muxed_adc_object : muxed_adc_record)
         return std_logic_vector ;
 ------------------------------------------------------------------------
@@ -46,6 +46,10 @@ package muxed_adc_pkg is
     function get_ad_measurement ( muxed_adc_object : muxed_adc_record)
         return integer;
 ------------------------------------------------------------------------
+    procedure init_adc (
+        signal muxed_adc_object : inout muxed_adc_record);
+------------------------------------------------------------------------
+
 
 end package muxed_adc_pkg;
 
@@ -178,6 +182,14 @@ package body muxed_adc_pkg is
     begin
         return get_ad_measurement(muxed_adc_object.ads7056);
     end get_ad_measurement;
+------------------------------------------------------------------------
+    procedure init_adc
+    (
+        signal muxed_adc_object : inout muxed_adc_record
+    ) is
+    begin
+        initialize_ads7056(muxed_adc_object.ads7056);
+    end init_adc;
 ------------------------------------------------------------------------
 
 end package body muxed_adc_pkg;

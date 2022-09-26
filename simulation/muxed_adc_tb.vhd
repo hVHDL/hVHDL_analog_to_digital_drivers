@@ -21,7 +21,7 @@ architecture vunit_simulation of muxed_adc_tb is
     signal simulation_counter  : natural   := 0;
     -----------------------------------
     -- simulation specific signals ----
-    signal muxed_adc : muxed_adc_record := init_muxed_adc(5);
+    signal muxed_adc : muxed_adc_record := init_muxed_adc(11);
     signal ad_mux_io : std_logic_vector(2 downto 0) := (others => '0');
 
     signal measurements          : measurements_array := (others => 0);
