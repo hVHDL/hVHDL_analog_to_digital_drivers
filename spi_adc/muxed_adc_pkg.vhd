@@ -13,7 +13,6 @@ package muxed_adc_pkg is
         ads7056               : ads7056_record;
         ad_mux                : ad_mux_record;
         triggered_adc_channel : integer range 0 to 7;
-        measurements          : measurements_array;
     end record;
 
 ------------------------------------------------------------------------
@@ -64,7 +63,7 @@ package body muxed_adc_pkg is
     is
         variable return_value : muxed_adc_record;
     begin
-        return_value := (init_ads7056(clock_divider), init_ad_mux, 0, (others => 0));
+        return_value := (init_ads7056(clock_divider), init_ad_mux, 0);
         return return_value;
         
     end init_muxed_adc;
@@ -78,10 +77,6 @@ package body muxed_adc_pkg is
     begin
         create_ads7056(m.ads7056, adc_io);
         create_ad_mux(m.ad_mux, ads7056_is_ready(m.ads7056));
-
-        if ads7056_is_ready(m.ads7056) then
-            m.measurements(m.triggered_adc_channel) <= get_ad_measurement(m.ads7056);
-        end if;
     end create_muxed_adc;
 ------------------------------------------------------------------------
     function measurement_is_ready
