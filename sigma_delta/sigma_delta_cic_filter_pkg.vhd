@@ -4,6 +4,7 @@ library ieee;
 
 package sigma_delta_cic_filter_pkg is
 
+    -- currently only 32 cycle downsampling is supported
     constant wordlength : integer := 16;
     subtype sdm_integer is integer range -2**15 to 2**15-1;
     type integer_array is array (integer range 0 to 2) of integer range -2**(wordlength-1) to 2**(wordlength-1)-1;
@@ -19,7 +20,7 @@ package sigma_delta_cic_filter_pkg is
     constant init_cic_filter : cic_filter_record := (init_integer_array, init_integer_array, 0, 0);
 
     procedure calculate_cic_filter (
-        signal cic_filter_object : inout cic_filter_record;
+        signal self : inout cic_filter_record;
         input_bit : in std_logic);
 
     function get_cic_filter_output ( cic_filter_object : cic_filter_record)
@@ -92,23 +93,21 @@ package body sigma_delta_cic_filter_pkg is
 ------------------------------------------------------------------------
     procedure calculate_cic_filter
     (
-        signal cic_filter_object : inout cic_filter_record;
+        signal self : inout cic_filter_record;
         input_bit : in std_logic
     ) is
-        alias m is cic_filter_object;
-        variable input_integer : integer range 0 to 1;
+
+        variable input_data : unsigned(0 downto 0);
+
     begin
-        if input_bit = '0' then
-            input_integer := 0;
-        else
-            input_integer := 1;
-        end if;
+
+        input_data(0) := input_bit;
         calculate_cic_filter(
-            m.integrator_array   ,
-            m.derivator_array    ,
-            m.decimation_counter ,
-            m.output_signal      ,
-            input_integer);
+            self.integrator_array   ,
+            self.derivator_array    ,
+            self.decimation_counter ,
+            self.output_signal      ,
+            to_integer(input_data)*2-1);
         
     end calculate_cic_filter;
 ------------------------------------------------------------------------
