@@ -13,7 +13,7 @@ package sigma_delta_cic_filter_pkg is
     type cic_filter_record is record
         integrator_array   : integer_array;
         derivator_array    : integer_array;
-        decimation_counter : sdm_integer;
+        decimation_counter : integer range 0 to 255;
         output_signal      : sdm_integer;
     end record;
 
